@@ -2,6 +2,7 @@ import { useFakeNewsDetector } from '@/hooks/useFakeNewsDetector';
 import { NewsInput } from '@/components/NewsInput';
 import { VerdictDisplay } from '@/components/VerdictDisplay';
 import { HistoryPanel } from '@/components/HistoryPanel';
+import { NewsTicker } from '@/components/NewsTicker';
 import { Newspaper, Shield, AlertTriangle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
@@ -26,7 +27,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background relative">
       {/* Newspaper texture overlay */}
-      <div className="fixed inset-0 opacity-[0.03] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIvPjwvc3ZnPg==')]" />
+      <div className="fixed inset-0 opacity-[0.10] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIvPjwvc3ZnPg==')]" />
       
       {/* Header - Newspaper Masthead Style */}
       <header className="border-b-4 border-foreground bg-card/80 backdrop-blur-sm sticky top-0 z-10">
@@ -66,8 +67,19 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="grid lg:grid-cols-[1fr,320px] gap-8 items-start">
-          {/* Left Column - Main Content */}
+        <div className="grid grid-cols-1 lg:grid-cols-[280px,1fr,320px] gap-8 items-start">
+          {/* Left Column - News Ticker */}
+          <aside className="hidden lg:block lg:sticky lg:top-32 lg:self-start">
+            <div className="border-r-4 border-foreground pr-4">
+              <h2 className="font-headline font-bold text-lg uppercase tracking-wider mb-4 flex items-center gap-2">
+                Latest Headlines
+                <span className="w-8 h-0.5 bg-foreground inline-block" />
+              </h2>
+            </div>
+            <NewsTicker />
+          </aside>
+
+          {/* Center Column - Main Content */}
           <div className="space-y-8">
             {/* Breaking News Banner when analyzing */}
             {isAnalyzing && (
