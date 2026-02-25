@@ -1,9 +1,10 @@
 import { useFakeNewsDetector } from '@/hooks/useFakeNewsDetector';
 import { NewsInput } from '@/components/NewsInput';
 import { VerdictDisplay } from '@/components/VerdictDisplay';
+import { ScrapeResultDisplay } from '@/components/ScrapeResultDisplay';
 import { HistoryPanel } from '@/components/HistoryPanel';
 import { NewsTicker } from '@/components/NewsTicker';
-import { Newspaper, Shield, AlertTriangle } from 'lucide-react';
+import { Newspaper, Shield, AlertTriangle, Globe } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
 const Index = () => {
@@ -15,6 +16,11 @@ const Index = () => {
     clearHistory,
     loadFromHistory,
     error,
+    // Scrape
+    isScraping,
+    scrapeResult,
+    scrapeError,
+    scrapeNews,
   } = useFakeNewsDetector();
 
   const currentDate = new Date().toLocaleDateString('en-US', {
@@ -24,11 +30,13 @@ const Index = () => {
     day: 'numeric',
   });
 
+  const isBusy = isAnalyzing || isScraping;
+
   return (
     <div className="min-h-screen bg-background relative">
       {/* Newspaper texture overlay */}
       <div className="fixed inset-0 opacity-[0.10] pointer-events-none bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIzMDAiIGhlaWdodD0iMzAwIj48ZmlsdGVyIGlkPSJhIiB4PSIwIiB5PSIwIj48ZmVUdXJidWxlbmNlIGJhc2VGcmVxdWVuY3k9Ii43NSIgc3RpdGNoVGlsZXM9InN0aXRjaCIgdHlwZT0iZnJhY3RhbE5vaXNlIi8+PGZlQ29sb3JNYXRyaXggdHlwZT0ic2F0dXJhdGUiIHZhbHVlcz0iMCIvPjwvZmlsdGVyPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbHRlcj0idXJsKCNhKSIvPjwvc3ZnPg==')]" />
-      
+
       {/* Header - Newspaper Masthead Style */}
       <header className="border-b-4 border-foreground bg-card/80 backdrop-blur-sm sticky top-0 z-10">
         <div className="container mx-auto px-4">
@@ -38,7 +46,7 @@ const Index = () => {
             <span className="font-medium">{currentDate}</span>
             <span>Vol. 1 No. 1</span>
           </div>
-          
+
           {/* Main masthead */}
           <div className="py-6 text-center">
             <div className="flex items-center justify-center gap-3 mb-2">
@@ -81,16 +89,21 @@ const Index = () => {
 
           {/* Center Column - Main Content */}
           <div className="space-y-8">
-            {/* Breaking News Banner when analyzing */}
-            {isAnalyzing && (
+            {/* Breaking News Banner when analyzing or scraping */}
+            {isBusy && (
               <div className="bg-accent text-accent-foreground py-3 px-4 flex items-center justify-center gap-3 animate-pulse">
                 <span className="font-headline font-bold uppercase tracking-wider text-sm">
-                  ⚡ Breaking: Analysis in Progress ⚡
+                  {isScraping ? '🌐 Breaking: Web Investigation in Progress 🌐' : '⚡ Breaking: Analysis in Progress ⚡'}
                 </span>
               </div>
             )}
 
-            <NewsInput onAnalyze={analyzeNews} isAnalyzing={isAnalyzing} />
+            <NewsInput
+              onAnalyze={analyzeNews}
+              isAnalyzing={isAnalyzing}
+              onScrape={scrapeNews}
+              isScraping={isScraping}
+            />
 
             {error && (
               <Alert className="border-2 border-destructive bg-destructive/10">
@@ -99,9 +112,45 @@ const Index = () => {
                 </AlertDescription>
               </Alert>
             )}
-            
+
+            {scrapeError && (
+              <Alert className="border-2 border-destructive bg-destructive/10">
+                <AlertDescription className="text-sm font-body">
+                  {scrapeError}
+                </AlertDescription>
+              </Alert>
+            )}
+
             {currentResult && !isAnalyzing && (
               <VerdictDisplay result={currentResult} />
+            )}
+
+            {scrapeResult && !isScraping && (
+              <ScrapeResultDisplay result={scrapeResult} />
+            )}
+
+            {isScraping && (
+              <div className="border-2 border-border bg-card p-12 text-center relative overflow-hidden">
+                <div className="absolute inset-0 newspaper-texture opacity-50" />
+                <div className="relative">
+                  <div className="inline-block">
+                    <Globe className="h-16 w-16 mx-auto mb-4 text-muted-foreground animate-bounce" />
+                  </div>
+                  <h3 className="font-headline text-2xl font-bold mb-2">Scraping the Web...</h3>
+                  <p className="text-muted-foreground font-body">
+                    Our investigators are searching the internet for evidence
+                  </p>
+                  <div className="flex justify-center gap-1 mt-4">
+                    {[0, 1, 2].map((i) => (
+                      <div
+                        key={i}
+                        className="w-2 h-2 bg-foreground rounded-full animate-bounce"
+                        style={{ animationDelay: `${i * 0.15}s` }}
+                      />
+                    ))}
+                  </div>
+                </div>
+              </div>
             )}
 
             {isAnalyzing && (
@@ -128,7 +177,7 @@ const Index = () => {
               </div>
             )}
 
-            {!currentResult && !isAnalyzing && (
+            {!currentResult && !scrapeResult && !isBusy && (
               <div className="border-2 border-dashed border-border bg-card/50 p-8 text-center">
                 <div className="max-w-md mx-auto">
                   <AlertTriangle className="h-12 w-12 mx-auto mb-4 text-muted-foreground" />
@@ -136,9 +185,9 @@ const Index = () => {
                     Submit Your Story for Review
                   </h3>
                   <p className="text-muted-foreground font-body text-sm leading-relaxed">
-                    In an era of information overload, truth matters. Paste any news headline 
-                    or article above to run it through our verification analysis. We'll examine 
-                    it for common markers of misinformation.
+                    In an era of information overload, truth matters. Paste any news headline
+                    or article above to run it through our verification analysis, or use
+                    <strong> Scrap the Web</strong> to search the internet for corroborating evidence.
                   </p>
                 </div>
               </div>
@@ -148,7 +197,7 @@ const Index = () => {
             <Alert className="border-2 border-foreground bg-secondary/50">
               <AlertDescription className="text-xs text-center font-body leading-relaxed">
                 <span className="font-bold uppercase tracking-wider">Notice to Readers:</span>{' '}
-                This publication is intended for educational and demonstration purposes only. 
+                This publication is intended for educational and demonstration purposes only.
                 Always verify news through multiple reputable sources before sharing.
               </AlertDescription>
             </Alert>
@@ -162,10 +211,10 @@ const Index = () => {
                 Archives
               </h2>
             </div>
-            <HistoryPanel 
-              history={history} 
-              onSelect={loadFromHistory} 
-              onClear={clearHistory} 
+            <HistoryPanel
+              history={history}
+              onSelect={loadFromHistory}
+              onClear={clearHistory}
             />
           </aside>
         </div>
