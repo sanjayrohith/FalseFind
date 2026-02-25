@@ -23,13 +23,31 @@ export interface ScrapeSource {
   url: string;
   snippet: string;
   domain: string;
+  provider: string;
+  source_name?: string;
+  published_at?: string;
+}
+
+export interface FactCheck {
+  title: string;
+  url: string;
+  snippet: string;
+  domain: string;
+  claim_text: string;
+  claimant: string;
+  rating: string;
+  publisher: string;
 }
 
 export interface ScrapeResult {
   queryUsed: string;
-  sourcesFound: number;
+  verdict: string; // "REAL" | "FAKE" | "UNVERIFIED"
+  confidence: number;
+  explanation: string;
+  providersUsed: string[];
+  factChecks: FactCheck[];
   sources: ScrapeSource[];
-  summary: string; // "SUPPORTED" | "DISPUTED" | "MIXED" | "UNVERIFIED"
+  sourcesFound: number;
   timestamp: Date;
 }
 
@@ -172,14 +190,30 @@ export function useFakeNewsDetector() {
 
       const result: ScrapeResult = {
         queryUsed: data?.query_used ?? '',
-        sourcesFound: data?.sources_found ?? 0,
+        verdict: data?.verdict ?? 'UNVERIFIED',
+        confidence: data?.confidence ?? 0,
+        explanation: data?.explanation ?? '',
+        providersUsed: data?.providers_used ?? [],
+        factChecks: (data?.fact_checks ?? []).map((fc: Record<string, string>) => ({
+          title: fc.title ?? '',
+          url: fc.url ?? '',
+          snippet: fc.snippet ?? '',
+          domain: fc.domain ?? '',
+          claim_text: fc.claim_text ?? '',
+          claimant: fc.claimant ?? '',
+          rating: fc.rating ?? '',
+          publisher: fc.publisher ?? '',
+        })),
         sources: (data?.sources ?? []).map((s: Record<string, string>) => ({
           title: s.title ?? '',
           url: s.url ?? '',
           snippet: s.snippet ?? '',
           domain: s.domain ?? '',
+          provider: s.provider ?? '',
+          source_name: s.source_name ?? '',
+          published_at: s.published_at ?? '',
         })),
-        summary: data?.summary ?? 'UNVERIFIED',
+        sourcesFound: data?.sources_found ?? 0,
         timestamp: new Date(),
       };
 
