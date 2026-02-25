@@ -4,9 +4,10 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700;800;900&family=UnifrakturMaguntia&family=Source+Serif+4:wght@400;500;600&display=swap');
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* ======================================================================
+   Design System — Veritas Tribune
+   All colors MUST be HSL.
+   ====================================================================== */
 
 @layer base {
   :root {
@@ -113,21 +114,31 @@ All colors MUST be HSL.
   }
 }
 
+/* ======================================================================
+   Typography Utilities
+   ====================================================================== */
+
 @layer utilities {
   .font-newspaper-title {
     font-family: 'UnifrakturMaguntia', 'Times New Roman', serif;
   }
-  
+
   .font-headline {
     font-family: 'Playfair Display', Georgia, serif;
   }
-  
+
   .font-body {
     font-family: 'Source Serif 4', Georgia, serif;
   }
-  
+}
+
+/* ======================================================================
+   Newspaper-Themed Components
+   ====================================================================== */
+
+@layer utilities {
   .newspaper-texture {
-    background-image: 
+    background-image:
       repeating-linear-gradient(
         to bottom,
         transparent,
@@ -136,13 +147,13 @@ All colors MUST be HSL.
         hsl(var(--border) / 0.3) 29px
       );
   }
-  
+
   .newspaper-divider {
     border-top: 2px solid hsl(var(--foreground));
     border-bottom: 1px solid hsl(var(--foreground));
     height: 5px;
   }
-  
+
   .stamp-seal {
     border: 3px solid hsl(var(--destructive));
     border-radius: 50%;
@@ -152,9 +163,26 @@ All colors MUST be HSL.
     text-transform: uppercase;
     letter-spacing: 0.1em;
   }
+
+  /* Card depth — subtle newspaper-appropriate shadow */
+  .card-depth {
+    box-shadow:
+      0 1px 3px hsl(var(--foreground) / 0.06),
+      0 4px 12px hsl(var(--foreground) / 0.04);
+  }
+
+  .card-depth-lg {
+    box-shadow:
+      0 2px 6px hsl(var(--foreground) / 0.08),
+      0 8px 24px hsl(var(--foreground) / 0.06);
+  }
 }
 
-/* Keyframe animation for news boxes */
+/* ======================================================================
+   Animations
+   ====================================================================== */
+
+/* Fade in from below */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -166,14 +194,50 @@ All colors MUST be HSL.
   }
 }
 
-/* News box animation class */
+/* Slide in from the right */
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Stamp reveal */
+@keyframes stampIn {
+  0% {
+    opacity: 0;
+    transform: rotate(var(--stamp-rotation, -12deg)) scale(2.5);
+  }
+  60% {
+    opacity: 1;
+    transform: rotate(var(--stamp-rotation, -12deg)) scale(0.9);
+  }
+  100% {
+    opacity: 1;
+    transform: rotate(var(--stamp-rotation, -12deg)) scale(1);
+  }
+}
+
+/* Typewriter cursor blink for loading text */
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
+/* Smooth pulse (less aggressive than built-in) */
+@keyframes gentlePulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+/* News box entrance */
 .news-box-animate {
   animation: fadeInUp 0.6s ease-out forwards;
   animation-delay: var(--animation-delay, 0s);
-}
-
-/* Apply will-change only during animation */
-.news-box-animate {
   will-change: transform, opacity;
 }
 
@@ -181,12 +245,108 @@ All colors MUST be HSL.
   will-change: auto;
 }
 
+/* Verdict card entrance (slide + fade) */
+.verdict-enter {
+  animation: fadeInUp 0.5s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+
+/* Stamp entrance */
+.stamp-enter {
+  animation: stampIn 0.5s cubic-bezier(0.22, 1, 0.36, 1) 0.3s forwards;
+  opacity: 0;
+}
+
+/* Slide in from right (for side panels) */
+.slide-in-right {
+  animation: slideInRight 0.4s ease-out forwards;
+}
+
+/* Loading dots animation */
+.loading-dot {
+  animation: gentlePulse 1.4s ease-in-out infinite;
+}
+
+/* Textarea focus glow — warm editorial amber, not neon */
+.textarea-editorial:focus {
+  border-color: hsl(var(--foreground));
+  box-shadow:
+    0 0 0 3px hsl(var(--foreground) / 0.08),
+    0 0 0 1px hsl(var(--foreground) / 0.15);
+}
+
+/* Primary CTA hover lift */
+.cta-primary {
+  transition: all 200ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.cta-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow:
+    0 4px 12px hsl(var(--foreground) / 0.15),
+    0 2px 4px hsl(var(--foreground) / 0.1);
+}
+
+.cta-primary:active:not(:disabled) {
+  transform: translateY(0);
+  box-shadow: 0 1px 2px hsl(var(--foreground) / 0.1);
+}
+
+/* Secondary CTA hover */
+.cta-secondary {
+  transition: all 200ms ease;
+}
+
+.cta-secondary:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px hsl(var(--foreground) / 0.1);
+}
+
+.cta-secondary:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+/* History item hover transition */
+.history-item {
+  transition: background-color 200ms ease, box-shadow 200ms ease;
+}
+
+.history-item:hover {
+  background-color: hsl(var(--secondary) / 0.6);
+  box-shadow: inset 3px 0 0 hsl(var(--foreground));
+}
+
+/* Scrollbar styling for newspaper aesthetic */
+.newspaper-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.newspaper-scroll::-webkit-scrollbar-track {
+  background: hsl(var(--secondary) / 0.3);
+}
+
+.newspaper-scroll::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 3px;
+}
+
+.newspaper-scroll::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
+}
+
 /* Respect user motion preferences */
 @media (prefers-reduced-motion: reduce) {
-  .news-box-animate {
+  .news-box-animate,
+  .verdict-enter,
+  .stamp-enter,
+  .slide-in-right {
     animation: none;
     opacity: 1;
     transform: none;
     will-change: auto;
+  }
+
+  .cta-primary:hover:not(:disabled),
+  .cta-secondary:hover:not(:disabled) {
+    transform: none;
   }
 }
